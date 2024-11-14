@@ -1,0 +1,63 @@
+import sqlite3
+import bcrypt
+
+def get_db_connection():
+    # Construct the path to the database file
+    db_path = os.path.join(os.path.dirname(__file__), 'user_data.db')
+    return sqlite3.connect(db_path)
+
+# Database setup: Create the database and table if they don't exist
+def create_database():
+    conn = sqlite3.connect("user_data.db")
+    cursor = conn.cursor()
+
+    # Create table to store user data (username, email, password)
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        username TEXT NOT NULL,
+                        email TEXT NOT NULL,
+                        password TEXT NOT NULL
+                    )''')
+
+    # Commit and close the connection
+    conn.commit()
+    conn.close()
+    print("Database and table created (if they didn't exist already).")
+
+# Save user data: Insert new user into the database
+def save_user_data(username, email, password):
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    conn = sqlite3.connect("user_data.db")
+    cursor = conn.cursor()
+
+    # Insert new user with hashed password
+    cursor.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", 
+                   (username, email, hashed_password))
+
+    # Commit and close the connection
+    conn.commit()
+    conn.close()
+    print("User saved successfully with hashed password!")
+
+# Get user data: Retrieve user data by username
+def get_user_data(username):
+    conn = sqlite3.connect("user_data.db")
+    cursor = conn.cursor()
+
+    # Retrieve user data by username
+    cursor.execute("SELECT * FROM users WHERE username=?", (username,))
+    user = cursor.fetchone()
+
+    # Close the connection
+    conn.close()
+    
+    return user  # This will return a tuple (id, username, email, password) or None if not found
+
+# Verify password: Check if the provided password matches the hashed password
+def check_password(stored_hash, password):
+    return bcrypt.checkpw(password.encode('utf-8'), stored_hash)
+
+# Call this function once at the start to set up the database and table
+create_database()
+
