@@ -34,7 +34,7 @@ class SplashScreen(ctk.CTk):
 
     def play_video(self):
         # Load the video
-        self.video = cv2.VideoCapture('./assets/cartoonito4.mp4')  # Path to your video file
+        self.video = cv2.VideoCapture('../assets/cartoonito4.mp4')  # Path to your video file
         total_frames = int(self.video.get(cv2.CAP_PROP_FRAME_COUNT))  # Get the total number of frames in the video
         
         while self.video.isOpened():
